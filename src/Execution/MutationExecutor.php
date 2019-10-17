@@ -54,6 +54,16 @@ class MutationExecutor
             if (isset($nestedOperations['create'])) {
                 self::handleMultiRelationCreate(new Collection($nestedOperations['create']), $relation);
             }
+
+            if (isset($nestedOperations['update'])) {
+                (new Collection($nestedOperations['update']))->each(function ($singleValues) use ($relation): void {
+                    self::executeUpdate(
+                        $relation->getModel()->newInstance(),
+                        new Collection($singleValues),
+                        $relation
+                    );
+                });
+            }
         };
         $hasMany->each($createOneToMany);
         $morphMany->each($createOneToMany);
@@ -64,6 +74,14 @@ class MutationExecutor
 
             if (isset($nestedOperations['create'])) {
                 self::handleSingleRelationCreate(new Collection($nestedOperations['create']), $relation);
+            }
+
+            if (isset($nestedOperations['update'])) {
+                self::executeUpdate(
+                    $relation->getModel()->newInstance(),
+                    new Collection($nestedOperations['update']),
+                    $relation
+                );
             }
         };
         $hasOne->each($createOneToOne);
